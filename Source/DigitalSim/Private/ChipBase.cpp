@@ -199,6 +199,11 @@ void AChipBase::CreateChipMesh()
 				break;
 			}
 
+			else
+			{
+				MeshSelectindex = InputsMeshMask.Num() - 1;
+
+			}
 			
 
 		}
@@ -213,63 +218,75 @@ void AChipBase::CreateChipMesh()
 	/// (Assuming number of inputs is always greater or equal to the number of outputs)
 	/// </summary>
 
-	LocationX = float(ChipData.NumInputs * 50);
+	LocationX = float((ChipData.NumInputs-2) * 50.0f);
 
 
 		//Spawning the topmost end of the mesh
 
-	if (TopMeshRef[MeshSelectindex])
-	{
+	
 		if ((ChipData.NumInputs & 1) == 0)
 		{
 			LocationX += 50.0f;	// Offestting values for even no of Meshes
 		}
 		
-		Meshname = "TopMesh";
-		CreateMesh(Meshname, FVector(LocationX, 0.0f, 0.0f), FRotator(0), TopMeshRef[MeshSelectindex]);
-
-
-
-		//Spawning the Bottommost End of the mesh
-
-		Meshname = "BotMesh";
-		LocationX = -LocationX;
-
-		CreateMesh(Meshname, FVector(LocationX, 0.0f, 0.0f), FRotator(0.0f, 180.0f, 0.0f), TopMeshRef[MeshSelectindex]);
-
-	}
+	
 
 		//Spawning the rest of the mesh
 
 	float YOffset = (MeshSelectindex + 1.0f) * 100.0f; //Offset for Inputs and output pins from the center
 
 
-	if (MidMeshRef[MeshSelectindex] && ChipData.NumInputs > 0)
+	if (ChipData.NumInputs > 0)
 	{
-
-
 		for (int i = 0; i < ChipData.NumInputs; i++)
 		{
-			/// <summary>
+
+			if (i == 0)
+			{
+				if (TopMeshRef[MeshSelectindex]) // validity Check
+				{
+					Meshname = "TopMesh";
+					CreateMesh(Meshname, FVector(LocationX, 0.0f, 0.0f), FRotator(0), TopMeshRef[MeshSelectindex]);
+				}
+				
+				
+			}
+
+			else if (i == ChipData.NumInputs - 1)
+			{
+				//Spawning the Bottommost End of the mesh
+
+				if (TopMeshRef[MeshSelectindex]) // validity Check
+				{
+					LocationX = LocationX - 100.0f;
+					Meshname = "BotMesh";
+
+					CreateMesh(Meshname, FVector(LocationX, 0.0f, 0.0f), FRotator(0.0f, 180.0f, 0.0f), TopMeshRef[MeshSelectindex]);
+				}
+			}
+
 			/// Spawning the mid Meshes for the generated model
-			/// </summary>
-			Meshname = "MidMesh_";
-			Meshname.AppendInt(i);
-			LocationX = LocationX + 100.0f;
-			CreateMesh(Meshname, FVector(LocationX, 0.0f, 0.0f), FRotator(0), MidMeshRef[MeshSelectindex]);
 
+			else
+			{
+				if (MidMeshRef[MeshSelectindex]) //Validity Check
+				{
+					Meshname = "MidMesh_";
+					Meshname.AppendInt(i);
+					LocationX = LocationX - 100.0f;
+					CreateMesh(Meshname, FVector(LocationX, 0.0f, 0.0f), FRotator(0), MidMeshRef[MeshSelectindex]);
+				}
 
+			}
 
-			/// <summary>
 			/// Spawning the Pin components for Connections
-			/// </summary>
 
 			SpawnedComponent = nullptr;
 			FString Name = "InputPin_";
 			Name.AppendInt(i);
 			
 
-			CreatePin(*Name, FVector(LocationX, YOffset, 0.0f), FRotator(0)); // Spawn Pins with Custom name and Offset
+			CreatePin(*Name, FVector(LocationX, -YOffset, 0.0f), FRotator(0.0f, 180.0f, 0.0f)); // Spawn Pins with Custom name and Offset
 
 
 			if (SpawnedComponent)
@@ -282,37 +299,8 @@ void AChipBase::CreateChipMesh()
 		}
 
 
-/*
-		if(MidMeshRef[MeshSelectindex] && ChipData.NumOutputs > 0)
-		{
-			LocationX = 0.0f;
 
-			if (ChipData.NumOutputs > 1)
-			{
-				LocationX = float(ChipData.NumOutputs * 50);
-			}
-
-			
-
-			for (int i = 0; i < ChipData.NumOutputs; i++) //Spawning A DigiPin component for each number of Output
-			{
-
-				FString Name = "OuputPin_";
-				Name.AppendInt(i);
-
-
-				CreatePin(*Name, FVector(-YOffset), FRotator()); // Spawn Pin with Custom name
-
-
-				if (SpawnedComponent)
-				{
-
-					SpawnedComponent->CurrentPinType = EPinType::PinOutput; //initializing pintype
-					OutputPinArray.Add(SpawnedComponent); 	//storing the reference for future calculations
-				}
-			}
-		}
-		*/
+		
 	}
 	
 	
