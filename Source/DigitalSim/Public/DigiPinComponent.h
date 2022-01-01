@@ -79,16 +79,14 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	UFUNCTION()
-		int State();
 	
-	UFUNCTION()
-		bool HasParent();
-	
-	UFUNCTION(BlueprintCallable)
-		void ReceiveSignal(int inSignal);
-	
-	
+	int State();
 
+	bool HasParent();
+
+	void ConnectPin(UDigiPinComponent* inPin);
+
+	UFUNCTION(BlueprintCallable)
+	void ReceiveSignal(int inSignal);
 		
 };

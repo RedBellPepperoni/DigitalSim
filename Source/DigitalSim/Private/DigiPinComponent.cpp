@@ -44,6 +44,23 @@ bool UDigiPinComponent::HasParent()
 	return ParentPin != nullptr || CurrentPinType == EPinType::PinOutput;
 }
 
+void UDigiPinComponent::ConnectPin(UDigiPinComponent* inPin)
+{
+	switch (CurrentPinType)
+	{
+		case EPinType::PinInput:	ParentPin = inPin;	//Will replace/override previous parentPinref
+									//add code for visual reprentaion later on: since disconnecting wires that are already connected will be necessary
+			break;
+
+		case EPinType::PinOutput:	ChildPinArray.Add(inPin);
+			break;
+
+		default:
+			break;
+	}
+
+}
+
 void UDigiPinComponent::ReceiveSignal(int inSignal)
 {
 	CurrentPinState = inSignal;

@@ -3,6 +3,9 @@
 
 
 #include "ChipBase.h"
+#include "DigitalSim/CustomSimPlayerController.h"
+
+
 
 // Sets default values
 AChipBase::AChipBase()
@@ -99,14 +102,7 @@ void AChipBase::ProcessOutput()
 	
 }
 
-void AChipBase::OnClicked(UPrimitiveComponent* inPinComp, FKey ButtonPressed)
-{
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Cyan, FString("EEEEEEEEEEEEEEEEE"));
-	}
 
-}
 
 // Called every frame
 void AChipBase::Tick(float DeltaTime)
@@ -186,7 +182,7 @@ void AChipBase::CreateChipMesh()
 
 	FString Meshname = "<nan>";
 
-	float LocationX = 0.0f;
+	float XOffset = 0.0f;
 	MeshSelectindex = 0;
 
 	if (InputsMeshMask.Num() > 0)
@@ -218,17 +214,31 @@ void AChipBase::CreateChipMesh()
 	/// (Assuming number of inputs is always greater or equal to the number of outputs)
 	/// </summary>
 
-	LocationX = float((ChipData.NumInputs-2) * 50.0f);
+	if (ChipData.NumInputs < 1)
+	{
+		//Error Negative Inputs or 0 number of inputs
+		return;
+	}
 
 
-		//Spawning the topmost end of the mesh
+	else if (ChipData.NumInputs > 1)
+	{
+		XOffset = float((ChipData.NumInputs - 2) * 50.0f);
 
-	
 		if ((ChipData.NumInputs & 1) == 0)
 		{
-			LocationX += 50.0f;	// Offestting values for even no of Meshes
+			XOffset += 50.0f;	// Offestting values for even no of Meshes
 		}
-		
+
+	}
+	
+
+	else // When number of inputs == 1 
+	{
+		// Show that NOT gate already Exists
+	}
+	
+	
 	
 
 		//Spawning the rest of the mesh
@@ -236,7 +246,7 @@ void AChipBase::CreateChipMesh()
 	float YOffset = (MeshSelectindex + 1.0f) * 100.0f; //Offset for Inputs and output pins from the center
 
 
-	if (ChipData.NumInputs > 0)
+	if (ChipData.NumInputs > 1)
 	{
 		for (int i = 0; i < ChipData.NumInputs; i++)
 		{
@@ -246,7 +256,7 @@ void AChipBase::CreateChipMesh()
 				if (TopMeshRef[MeshSelectindex]) // validity Check
 				{
 					Meshname = "TopMesh";
-					CreateMesh(Meshname, FVector(LocationX, 0.0f, 0.0f), FRotator(0), TopMeshRef[MeshSelectindex]);
+					CreateMesh(Meshname, FVector(XOffset, 0.0f, 0.0f), FRotator(0), TopMeshRef[MeshSelectindex]);
 				}
 				
 				
@@ -258,10 +268,10 @@ void AChipBase::CreateChipMesh()
 
 				if (TopMeshRef[MeshSelectindex]) // validity Check
 				{
-					LocationX = LocationX - 100.0f;
+					XOffset = XOffset - 100.0f;
 					Meshname = "BotMesh";
 
-					CreateMesh(Meshname, FVector(LocationX, 0.0f, 0.0f), FRotator(0.0f, 180.0f, 0.0f), TopMeshRef[MeshSelectindex]);
+					CreateMesh(Meshname, FVector(XOffset, 0.0f, 0.0f), FRotator(0.0f, 180.0f, 0.0f), TopMeshRef[MeshSelectindex]);
 				}
 			}
 
@@ -273,8 +283,8 @@ void AChipBase::CreateChipMesh()
 				{
 					Meshname = "MidMesh_";
 					Meshname.AppendInt(i);
-					LocationX = LocationX - 100.0f;
-					CreateMesh(Meshname, FVector(LocationX, 0.0f, 0.0f), FRotator(0), MidMeshRef[MeshSelectindex]);
+					XOffset = XOffset - 100.0f;
+					CreateMesh(Meshname, FVector(XOffset, 0.0f, 0.0f), FRotator(0), MidMeshRef[MeshSelectindex]);
 				}
 
 			}
@@ -286,7 +296,7 @@ void AChipBase::CreateChipMesh()
 			Name.AppendInt(i);
 			
 
-			CreatePin(*Name, FVector(LocationX, -YOffset, 0.0f), FRotator(0.0f, 180.0f, 0.0f)); // Spawn Pins with Custom name and Offset
+			CreatePin(*Name, FVector(XOffset, -YOffset, 0.0f), FRotator(0.0f, 180.0f, 0.0f)); // Spawn Pins with Custom name and Offset
 
 
 			if (SpawnedComponent)
@@ -300,10 +310,44 @@ void AChipBase::CreateChipMesh()
 
 
 
+
+
 		
 	}
+
+	/// <summary>
+	/// Generating and Spacing Outputs
+	/// </summary>
 	
+	if (ChipData.NumOutputs > 0)
+	{
 	
+		XOffset = float((ChipData.NumOutputs - 1) * 50.0f);;
+
+		for (int i = 0; i < ChipData.NumOutputs; i++)
+		{
+			SpawnedComponent = nullptr;
+			FString Name = "OutputPin_";
+			Name.AppendInt(i);
+
+
+			CreatePin(*Name, FVector(XOffset, YOffset, 0.0f), FRotator(0)); // Spawn Pins with Custom name and Offset
+
+
+			if (SpawnedComponent)
+			{
+				SpawnedComponent->CurrentPinType = EPinType::PinOutput; //initializing pintype
+				OutputPinArray.Add(SpawnedComponent); //storing the reference for future calculations
+			}
+
+			XOffset = XOffset - 100.0f;
+		}
+	}
+
+	else
+	{
+		//Error Number of Outputs are negative or zero
+	}
 
 	
 
@@ -323,7 +367,7 @@ void AChipBase::CreatePin(FString inPinName, FVector inLocation, FRotator inRota
 
 		SpawnedComponent->RegisterComponent();  //Registering the component according to unreal rules
 		SpawnedComponent->AttachToComponent(PinsRootComp, FAttachmentTransformRules::SnapToTargetIncludingScale); //Attching the DigiPin component to each mesh
-		SpawnedComponent->OnClicked.AddDynamic(this, &AChipBase::OnClicked);
+		//SpawnedComponent->OnClicked.AddDynamic(this, &AChipBase::OnClicked);
 		SpawnedComponent->SetCollisionEnabled(ECollisionEnabled::Type::QueryOnly);
 		SpawnedComponent->SetWorldLocation(GetActorLocation());
 
