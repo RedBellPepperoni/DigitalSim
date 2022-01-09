@@ -11,8 +11,16 @@ class ADigitalSimGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 
+private:
+
+protected:
+
+
 public:
 	ADigitalSimGameMode();
+
+
+
 };
 
 

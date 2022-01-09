@@ -44,20 +44,89 @@ bool UDigiPinComponent::HasParent()
 	return ParentPin != nullptr || CurrentPinType == EPinType::PinOutput;
 }
 
+void UDigiPinComponent::ConnectPin(UDigiPinComponent* inPin)
+{
+	switch (CurrentPinType)
+	{
+		case EPinType::PinInput:	ParentPin = inPin;	//Will replace/override previous parentPinref
+									//add code for visual reprentaion later on: since disconnecting wires that are already connected will be necessary
+									
+								
+									CurrentPinState = ParentPin->State(); //Setting State according to previous PArent if connection occurs
+
+									
+			break;
+
+		case EPinType::PinOutput:	ChildPinArray.Add(inPin);
+									
+									for (int i = 0; i < ChildPinArray.Num(); i++)
+									{	
+										//Sending Outputs to all childpins if connections occurs
+										if (ChildPinArray[i]->ChipRef)
+											ChildPinArray[i]->ChipRef->ProcessOutput();
+
+										
+									}
+			break;
+
+		default:
+			break;
+	}
+
+	if(ChipRef)
+	{
+		ChipRef->ProcessOutput();
+	}
+	else if (OutputRef)
+	{
+		OutputRef->ShowOutput();
+	}
+
+}
+
+void UDigiPinComponent::DisconnectPin(UDigiPinComponent* inPin)
+{
+	switch (CurrentPinType)
+	{
+	case EPinType::PinInput:
+
+		//Figure out a way to Discoonect and remove pin refs
+		ParentPin->ChildPinArray.RemoveAt(ParentPin->ChildPinArray.Find(this));
+		
+		ParentPin = nullptr;
+
+		CurrentPinState = 0;
+
+		ChipRef->ProcessOutput();
+
+		break;
+	case EPinType::PinOutput:
+
+		
+
+		break;
+	default:
+		break;
+	}
+
+}
+
 void UDigiPinComponent::ReceiveSignal(int inSignal)
 {
 	CurrentPinState = inSignal;
 
 	if (CurrentPinType == EPinType::PinInput) // if this Pin is an Input Pin, calculate the output
 	{
-		if (ChipRef!= nullptr)
+		if (ChipRef)
 		{
 			ChipRef->ProcessOutput();
 		}
 
-		else
+		else if(OutputRef)
 		{
-			//Show UI Output etc
+			
+			OutputRef->ShowOutput();
+
 		}
 		
 	}

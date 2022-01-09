@@ -20,7 +20,7 @@ public:
 	AInputSource();
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
-	UDigiPinComponent* OutputPin;
+	UDigiPinComponent* InputPinComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	UStaticMeshComponent* BaseMeshComp;
@@ -35,5 +35,6 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UFUNCTION(BlueprintCallable)
 	void ChangeInput();
 };

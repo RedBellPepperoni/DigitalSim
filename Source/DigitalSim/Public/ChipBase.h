@@ -65,11 +65,11 @@ public:
 	FName ChipName;
 	
 	//Array of all the inputs to be created and assigned for a chip
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ChipEssentials")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ChipEssentials")
 	TArray< UDigiPinComponent*> InputPinArray;
 
 	//Array of all the outputs to be created and assigned for a chip
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ChipEssentials")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ChipEssentials")
 	TArray< UDigiPinComponent*> OutputPinArray;
 
 	// Struct of the Data that this chip has
@@ -81,10 +81,9 @@ public:
 	bool bHasCustomMesh;
 
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	
 	USceneComponent* MeshRootComp;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	USceneComponent* PinsRootComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
@@ -102,7 +101,7 @@ public:
 	TArray<UStaticMesh*> MidMeshRef;
 
 	// The input number check to compare against to switch the meshes.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	
 	TArray<int> InputsMeshMask;
 
 	
@@ -142,8 +141,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void ProcessOutput();
 
-	UFUNCTION(Category = "Default")
-	void OnClicked(UPrimitiveComponent* inPinComp, FKey ButtonPressed);
+	
 
 private:
 
