@@ -6,10 +6,12 @@
 #include "Components/SceneComponent.h"
 #include "Components/BoxComponent.h"
 #include "ChipBase.h"
+#include "OutputDisplay.h"
 #include "DigiPinComponent.generated.h"
 
 
 class AChipBase;
+class AOutputDisplay;
 class UBoxComponent;
 class UStaticMeshComponent;
 class UDigiPinComponent;
@@ -22,6 +24,7 @@ enum class EPinType : uint8
 	PinOutput
 
 };
+
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class DIGITALSIM_API UDigiPinComponent : public UStaticMeshComponent
@@ -37,26 +40,28 @@ public:
 	
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ChipEssentials")
-		bool Cyclic;
+	bool Cyclic;
 
 	//Reference to the Chip this Pin is attached to
-	UPROPERTY(EditAnywhere,BlueprintReadOnly, Category = "ChipEssentials")
-		AChipBase* ChipRef;
+	
+	AChipBase* ChipRef;
+
+	AOutputDisplay* OutputRef;
 
 	//Index of the Current Pin
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ChipEssentials")
-		int Index;
+	int Index;
 
 	//Reference of the Pin that this recieves its input from
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ChipEssentials")
-		UDigiPinComponent* ParentPin;
+	UDigiPinComponent* ParentPin;
 
 
 	//Reference of all the Pins that recieve input from this Pin
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ChipEssentials")
-		TArray<UDigiPinComponent*> ChildPinArray;
+	TArray<UDigiPinComponent*> ChildPinArray;
 
-	UPROPERTY(BlueprintReadOnly, Category = "ChipEssentials")
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly, Category = "ChipEssentials")
 	EPinType CurrentPinType;
 	
 
@@ -79,12 +84,14 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	
+	UFUNCTION(BlueprintCallable)
 	int State();
 
 	bool HasParent();
 
 	void ConnectPin(UDigiPinComponent* inPin);
+
+	void DisconnectPin(UDigiPinComponent* inPin);
 
 	UFUNCTION(BlueprintCallable)
 	void ReceiveSignal(int inSignal);

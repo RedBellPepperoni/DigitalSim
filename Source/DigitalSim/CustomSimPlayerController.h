@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "ChipBase.h"
 #include "DigiPinComponent.h"
+#include "Wire.h"
 #include "CustomSimPlayerController.generated.h"
 
 /**
@@ -13,7 +14,7 @@
  */
 class UDigiPinComponent;
 class AChipBase;
-
+class AWire;
 
 UCLASS()
 class DIGITALSIM_API ACustomSimPlayerController : public APlayerController
@@ -31,6 +32,7 @@ protected:
 
 	UDigiPinComponent* InitialPinRef;
 	UDigiPinComponent* TargetPinRef;
+	AWire* CableRef;
 
 protected:
 	
@@ -44,7 +46,7 @@ protected:
 	
 public:
 	
-	void PinSelected(AChipBase* ChipRef, UDigiPinComponent* inPinRef);
+
 
 	
 };

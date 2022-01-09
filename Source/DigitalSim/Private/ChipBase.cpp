@@ -13,6 +13,7 @@ AChipBase::AChipBase()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	InputsMeshMask = { 4,8,12 };
 
 	MeshRootComp = CreateDefaultSubobject<USceneComponent>(TEXT("MeshSceneRoot"));
 	MeshRootComp->AttachToComponent(RootComponent,FAttachmentTransformRules::SnapToTargetIncludingScale);
@@ -78,6 +79,9 @@ void AChipBase::ProcessOutput()
 		if (ChipData.TTInput.Num() != forIndex)
 		{
 			//ErrorMEssgae that the TruthTbale isnt filled properly
+
+			
+
 			return;
 		}
 
@@ -91,7 +95,7 @@ void AChipBase::ProcessOutput()
 		}
 		
 		
-			
+		
 
 		
 		
@@ -309,45 +313,45 @@ void AChipBase::CreateChipMesh()
 		}
 
 
+		/// <summary>
+		/// Generating and Spacing Outputs
+		/// </summary>
+
+		if (ChipData.NumOutputs > 0)
+		{
+
+			XOffset = float((ChipData.NumOutputs - 1) * 50.0f);;
+
+			for (int i = 0; i < ChipData.NumOutputs; i++)
+			{
+				SpawnedComponent = nullptr;
+				FString Name = "OutputPin_";
+				Name.AppendInt(i);
 
 
+				CreatePin(*Name, FVector(XOffset, YOffset, 0.0f), FRotator(0)); // Spawn Pins with Custom name and Offset
+
+
+				if (SpawnedComponent)
+				{
+					SpawnedComponent->CurrentPinType = EPinType::PinOutput; //initializing pintype
+					OutputPinArray.Add(SpawnedComponent); //storing the reference for future calculations
+				}
+
+				XOffset = XOffset - 100.0f;
+			}
+		}
+
+		else
+		{
+			//Error Number of Outputs are negative or zero
+		}
 
 		
 	}
 
-	/// <summary>
-	/// Generating and Spacing Outputs
-	/// </summary>
 	
-	if (ChipData.NumOutputs > 0)
-	{
 	
-		XOffset = float((ChipData.NumOutputs - 1) * 50.0f);;
-
-		for (int i = 0; i < ChipData.NumOutputs; i++)
-		{
-			SpawnedComponent = nullptr;
-			FString Name = "OutputPin_";
-			Name.AppendInt(i);
-
-
-			CreatePin(*Name, FVector(XOffset, YOffset, 0.0f), FRotator(0)); // Spawn Pins with Custom name and Offset
-
-
-			if (SpawnedComponent)
-			{
-				SpawnedComponent->CurrentPinType = EPinType::PinOutput; //initializing pintype
-				OutputPinArray.Add(SpawnedComponent); //storing the reference for future calculations
-			}
-
-			XOffset = XOffset - 100.0f;
-		}
-	}
-
-	else
-	{
-		//Error Number of Outputs are negative or zero
-	}
 
 	
 

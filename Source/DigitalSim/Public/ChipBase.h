@@ -101,7 +101,7 @@ public:
 	TArray<UStaticMesh*> MidMeshRef;
 
 	// The input number check to compare against to switch the meshes.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	
 	TArray<int> InputsMeshMask;
 
 	

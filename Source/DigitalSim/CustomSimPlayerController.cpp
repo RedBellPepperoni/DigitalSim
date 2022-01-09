@@ -15,9 +15,7 @@ ACustomSimPlayerController::ACustomSimPlayerController()
 
 }
 
-void ACustomSimPlayerController::PinSelected(AChipBase* ChipRef, UDigiPinComponent* inPinRef)
-{
-}
+
 
 void ACustomSimPlayerController::SelectObject()
 {
@@ -25,15 +23,15 @@ void ACustomSimPlayerController::SelectObject()
 
 	if (Cast<UDigiPinComponent>(HitObjects.GetComponent()))
 	{
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Cyan, FString(HitObjects.GetActor()->GetFName().ToString() + HitObjects.GetComponent()->GetFName().ToString()));
-		}
+		
 
 		if (bHasInitiatorPin && InitialPinRef )
 		{
+
+
 			if(Cast<UDigiPinComponent>(HitObjects.GetComponent())->CurrentPinType != InitialPinRef->CurrentPinType)
 			{ 
+				
 
 				TargetPinRef = Cast<UDigiPinComponent>(HitObjects.GetComponent()); // Setting Target Pin reference
 
@@ -41,9 +39,13 @@ void ACustomSimPlayerController::SelectObject()
 				{
 					TargetPinRef->ConnectPin(InitialPinRef);
 					InitialPinRef->ConnectPin(TargetPinRef);
+
 				}
 
-
+				if (CableRef)
+				{
+					CableRef->AttachEndtoComponent(TargetPinRef);
+				}
 
 				
 			}
@@ -55,10 +57,10 @@ void ACustomSimPlayerController::SelectObject()
 					GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Cyan, FString("Incompatible Pin Connection"));
 				}
 
-				DeselectWires();
+				
 			}
 			
-
+			DeselectWires();
 			//Check for the Pin type since only Output to input pin is only possible
 		}
 
@@ -66,6 +68,10 @@ void ACustomSimPlayerController::SelectObject()
 		{
 			
 			InitialPinRef = Cast<UDigiPinComponent>(HitObjects.GetComponent());
+
+			CableRef =  GetWorld()->SpawnActor<AWire>(InitialPinRef->GetComponentLocation(), InitialPinRef->GetComponentRotation());
+			CableRef->AttachToComponent(InitialPinRef,FAttachmentTransformRules::SnapToTargetIncludingScale);
+			CableRef->bIsOneEndAttached = true;
 			bHasInitiatorPin = true;
 
 		}
@@ -78,8 +84,15 @@ void ACustomSimPlayerController::SelectObject()
 
 void ACustomSimPlayerController::DeselectWires()
 {
+
+	if(bHasInitiatorPin && CableRef)
+	{ 
+		CableRef->Destroy();
+	}
+
 	InitialPinRef = nullptr;
 	TargetPinRef = nullptr;
 
 	bHasInitiatorPin = false;
+	CableRef = nullptr;
 }

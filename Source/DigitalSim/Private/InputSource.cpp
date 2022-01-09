@@ -11,10 +11,13 @@ AInputSource::AInputSource()
 
 	BaseMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BaseMeshComp")); //Creating a mesh component to render the Actor
 
-	OutputPin = CreateDefaultSubobject<UDigiPinComponent>(TEXT("InputPinComp"));  //creating Digi Pin Comp
-	OutputPin->SetupAttachment(BaseMeshComp);
+	InputPinComp = CreateDefaultSubobject<UDigiPinComponent>(TEXT("InputPinComp"));  //creating Digi Pin Comp
+	InputPinComp->CurrentPinType = EPinType::PinOutput;
+	InputPinComp->SetupAttachment(BaseMeshComp);
 	
-	OutputPin->ReceiveSignal(0);
+
+	
+	InputPinComp->ReceiveSignal(0);
 }
 
 // Called when the game starts or when spawned
@@ -33,7 +36,7 @@ void AInputSource::Tick(float DeltaTime)
 
 void AInputSource::ChangeInput()
 {
-	OutputPin->ReceiveSignal(!OutputPin->State()); //Flip the current input state - positive signal if it was negative and viceversa
+	InputPinComp->ReceiveSignal(!InputPinComp->State()); //Flip the current input state - positive signal if it was negative and viceversa
 
 }
 
