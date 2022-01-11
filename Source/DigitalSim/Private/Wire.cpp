@@ -10,7 +10,7 @@ AWire::AWire()
 	PrimaryActorTick.bCanEverTick = true;
 
 	CableComp = CreateDefaultSubobject<UCableComponent>(TEXT("CableComp"));
-	CableComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CableComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	CableComp->NumSides = 8;
 	CableComp->CableWidth = 20;
 	CableComp->CableGravityScale = 0.8f;
@@ -45,15 +45,7 @@ void AWire::AttachEndtoComponent(UDigiPinComponent* inPin)
 	//CableComp->SetAttachEndTo(inPin->GetOwner(),inPin->GetFName(), "WireSocket");
 	CableComp->SetAttachEndToComponent(inPin, "WireSocket");
 
-	if (bIsOneEndAttached)
-	{
-		EndPin = inPin;
-	}
-
-	else
-	{
-		StartPin = inPin;
-	}
+	
 }
 
 void AWire::ClearCableEnds()

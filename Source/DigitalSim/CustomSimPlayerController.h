@@ -40,7 +40,10 @@ protected:
 	void SelectObject();
 
 	UFUNCTION(BlueprintCallable)
-	void DeselectWires();
+	void DeselectAll();
+
+	UFUNCTION(BlueprintCallable)
+	void DetachWires();
 
 	
 	

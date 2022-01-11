@@ -22,8 +22,7 @@ public:
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Components")
 	UCableComponent* CableComp;
-	UDigiPinComponent* StartPin;
-	UDigiPinComponent* EndPin;
+	
 
 	bool bIsOneEndAttached;
 

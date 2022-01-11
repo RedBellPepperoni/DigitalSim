@@ -7,6 +7,7 @@
 #include "Components/BoxComponent.h"
 #include "ChipBase.h"
 #include "OutputDisplay.h"
+#include "Wire.h"
 #include "DigiPinComponent.generated.h"
 
 
@@ -15,6 +16,7 @@ class AOutputDisplay;
 class UBoxComponent;
 class UStaticMeshComponent;
 class UDigiPinComponent;
+class AWire;
 
 UENUM(BlueprintType)
 enum class EPinType : uint8
@@ -48,6 +50,9 @@ public:
 
 	AOutputDisplay* OutputRef;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ChipEssentials")
+	AWire* CableRef;
+
 	//Index of the Current Pin
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ChipEssentials")
 	int Index;
@@ -61,9 +66,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ChipEssentials")
 	TArray<UDigiPinComponent*> ChildPinArray;
 
-	UPROPERTY(VisibleAnywhere,BlueprintReadOnly, Category = "ChipEssentials")
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "ChipEssentials")
 	EPinType CurrentPinType;
 	
+
 
 private :
 	
@@ -89,9 +95,14 @@ public:
 
 	bool HasParent();
 
+	// Helper function to Connect this pin to another Pin using Object Reference
 	void ConnectPin(UDigiPinComponent* inPin);
 
-	void DisconnectPin(UDigiPinComponent* inPin);
+	//Fucntion to Disconnect the Pin if its an Input Type Pin
+	void DisconnectInputPin();
+
+	//Function to Disconnect the referenced Pin from self pin if current pin is Output type pin 
+	void DisconnectOutputPin(UDigiPinComponent* inPin);
 
 	UFUNCTION(BlueprintCallable)
 	void ReceiveSignal(int inSignal);

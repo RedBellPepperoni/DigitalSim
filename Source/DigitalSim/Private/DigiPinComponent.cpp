@@ -48,10 +48,15 @@ void UDigiPinComponent::ConnectPin(UDigiPinComponent* inPin)
 {
 	switch (CurrentPinType)
 	{
-		case EPinType::PinInput:	ParentPin = inPin;	//Will replace/override previous parentPinref
-									//add code for visual reprentaion later on: since disconnecting wires that are already connected will be necessary
-									
-								
+		case EPinType::PinInput:	
+			
+									if (ParentPin)
+									{
+										ParentPin->DisconnectOutputPin(this);	//Disconnecting Previous connected wire before overwriting
+										//add code for visual reprentaion later on: since disconnecting wires that are already connected will be necessary
+									}
+
+									ParentPin = inPin;	//Will replace/override previous parentPinref
 									CurrentPinState = ParentPin->State(); //Setting State according to previous PArent if connection occurs
 
 									
@@ -84,30 +89,52 @@ void UDigiPinComponent::ConnectPin(UDigiPinComponent* inPin)
 
 }
 
-void UDigiPinComponent::DisconnectPin(UDigiPinComponent* inPin)
+//Pin Which Receives and input from others can only be connected by one otherpin
+void UDigiPinComponent::DisconnectInputPin()
 {
-	switch (CurrentPinType)
+	if (ParentPin)
 	{
-	case EPinType::PinInput:
-
-		//Figure out a way to Discoonect and remove pin refs
-		ParentPin->ChildPinArray.RemoveAt(ParentPin->ChildPinArray.Find(this));
-		
+		ParentPin->ChildPinArray.Remove(this);
 		ParentPin = nullptr;
 
 		CurrentPinState = 0;
 
-		ChipRef->ProcessOutput();
-
-		break;
-	case EPinType::PinOutput:
-
-		
-
-		break;
-	default:
-		break;
+		if (CableRef)
+		{
+			CableRef->Destroy();
+		}
 	}
+
+	if(ChipRef)
+	{
+		ChipRef->ProcessOutput();
+	}
+
+	else if (OutputRef)
+	{
+		OutputRef->ShowOutput();
+	}
+
+}
+
+void UDigiPinComponent::DisconnectOutputPin(UDigiPinComponent* inPin)
+{
+	
+	
+	if (ChildPinArray.Contains(inPin))
+	{
+		
+		inPin->DisconnectInputPin();
+
+		ChildPinArray.Remove(inPin);
+
+	}
+
+	
+
+
+	//if (GEngine)
+		//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString(inPin->GetFName().ToString()));
 
 }
 

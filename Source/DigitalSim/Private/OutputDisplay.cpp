@@ -12,11 +12,11 @@ AOutputDisplay::AOutputDisplay()
 	BaseMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BaseMeshComp")); //Creating a mesh component to render the Actor
 
 	OutputPinComp = CreateDefaultSubobject<UDigiPinComponent>(TEXT("OutputPinComp"));  //creating Digi Pin Comp
-	OutputPinComp->SetupAttachment(BaseMeshComp);
-	OutputPinComp->CurrentPinType = EPinType::PinInput;
-	OutputPinComp->OutputRef = this;
+	OutputPinComp->SetupAttachment(BaseMeshComp);			//Attaching the DigiPin to the Main Mesh
+	OutputPinComp->CurrentPinType = EPinType::PinInput;		//Setting the Pintype to Input
+	OutputPinComp->OutputRef = this;						//Setting AActor Ref for Output instead of ChipRef
 
-	OutputPinComp->ReceiveSignal(0);
+	OutputPinComp->ReceiveSignal(0); //Setting initial signal
 
 }
 
