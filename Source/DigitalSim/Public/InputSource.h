@@ -23,7 +23,7 @@ public:
 	UDigiPinComponent* InputPinComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
-	UStaticMeshComponent* BaseMeshComp;
+	USkeletalMeshComponent* BaseMeshComp;
 
 protected:
 	// Called when the game starts or when spawned
@@ -36,5 +36,5 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(BlueprintCallable)
-	void ChangeInput();
+	int ChangeInput();
 };

@@ -12,6 +12,7 @@
 
 
 class AChipBase;
+class AInputSource;
 class AOutputDisplay;
 class UBoxComponent;
 class UStaticMeshComponent;
@@ -48,7 +49,11 @@ public:
 	
 	AChipBase* ChipRef;
 
+	//Reference to the Output Display if the pin is attached to it
 	AOutputDisplay* OutputRef;
+	
+	//Reference to the InputSource if the Pin is attached to it
+	AInputSource* InputRef;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ChipEssentials")
 	AWire* CableRef;
@@ -77,6 +82,11 @@ private :
 	//Current State of the Pin 0 == LOW, 1 == HIGH;
 	int CurrentPinState;
 
+	//Storing the Power state of the Pin --- This helps to show if the main Object the pin is attached to is connected to the Input source or not
+	//IF Objects are not connected to Input source - they wont display results since there needs to be atleast 1 active Input connection
+	//Private to prevent mess that can happen in CustomChip Truthtable Generation algorithm
+	bool bIsPowered; 
+
 
 protected:
 	// Called when the game starts
@@ -90,9 +100,12 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	//Fucntion to Get the Current State of the Pin (0 = OFF, 1 = ON)
 	UFUNCTION(BlueprintCallable)
 	int State();
 
+	//FFOp
+	// Check to see fi the Pin has a parent -- can be removed during urther optimization
 	bool HasParent();
 
 	// Helper function to Connect this pin to another Pin using Object Reference
@@ -104,7 +117,15 @@ public:
 	//Function to Disconnect the referenced Pin from self pin if current pin is Output type pin 
 	void DisconnectOutputPin(UDigiPinComponent* inPin);
 
+	//Function to Change current Pi nState according to previous call and propogate the changes tok the subsequently connected object
 	UFUNCTION(BlueprintCallable)
 	void ReceiveSignal(int inSignal);
+
+	//Public function for Reading the current Power State 
+	UFUNCTION(BlueprintCallable)
+	bool GetIsPowered();
+
+	//Function to Calculate f Current Pin should be powered or unpowered according to its parent component
+	void CheckPower();
 		
 };

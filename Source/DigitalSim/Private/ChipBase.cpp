@@ -40,6 +40,8 @@ void AChipBase::BeginPlay()
 void AChipBase::ProcessOutput()
 {
 
+	
+
 	FString InputSet = "";
 	
 	
@@ -104,6 +106,11 @@ void AChipBase::ProcessOutput()
 
 
 	
+}
+
+bool AChipBase::GetIsPowered()
+{
+	return bIsPowered;
 }
 
 
@@ -421,5 +428,27 @@ void AChipBase::CreateMesh(FString inMeshName, FVector inLocation, FRotator inRo
 
 
 }
+
+void AChipBase::PowerCheck()
+{
+	//Cheing each of the Input Pins to see if any one is powered
+	for (int i = 0; i < InputPinArray.Num(); i++)
+	{
+		if (InputPinArray[i]->GetIsPowered()) // if a single pin is found to be powered break the loop and set the chip power state to be powered
+		{
+			bIsPowered = true;
+			break;
+		}
+
+		
+			bIsPowered = false; // if none of the pins are powered set the power state of chip to be unpowered
+		
+	}
+
+	
+
+}
+
+
 
 

@@ -17,7 +17,7 @@ UDigiPinComponent::UDigiPinComponent()
 void UDigiPinComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
+	CheckPower(); //Init checking of Pin power state
 	// ...
 	
 }
@@ -78,14 +78,20 @@ void UDigiPinComponent::ConnectPin(UDigiPinComponent* inPin)
 			break;
 	}
 
+	//Checking the current power state
+	CheckPower();
+
 	if(ChipRef)
-	{
-		ChipRef->ProcessOutput();
+	{	
+		ChipRef->ProcessOutput();//Calling the Chip To process the output of all its input pins
 	}
 	else if (OutputRef)
 	{
-		OutputRef->ShowOutput();
+		
+		OutputRef->ShowOutput();//calling the OutputDisplay Event Hook
 	}
+
+	
 
 }
 
@@ -94,66 +100,78 @@ void UDigiPinComponent::DisconnectInputPin()
 {
 	if (ParentPin)
 	{
-		ParentPin->ChildPinArray.Remove(this);
-		ParentPin = nullptr;
+		ParentPin->ChildPinArray.Remove(this);	//Removing current pin reference from the ParentPin's Child array
+		ParentPin = nullptr;	//Clearing the Parent Pin Reference
 
-		CurrentPinState = 0;
+		CurrentPinState = 0;	//Since there is no connection from any Pin, Set the state to 0 / OFF
 
 		if (CableRef)
 		{
-			CableRef->Destroy();
+			CableRef->Destroy(); //IF there was a cable attached to thos component -> Destroy it
 		}
 	}
 
+	CheckPower(); //Update the Power State of this Pin / Object
+
 	if(ChipRef)
 	{
-		ChipRef->ProcessOutput();
+		ChipRef->ProcessOutput();	// If current pin is part of a Chip Process its output to propogate the changed data
 	}
 
 	else if (OutputRef)
 	{
-		OutputRef->ShowOutput();
+		OutputRef->ShowOutput();	//IF the pin is a part of OutputDisplay call the Event hook
 	}
+
+	
 
 }
 
+//Fucntion to Disconnect an Input Pin from the current Pin (OutputPin)
 void UDigiPinComponent::DisconnectOutputPin(UDigiPinComponent* inPin)
 {
 	
-	
+	//Search and check if the pin to be disconnected is valid and in the child array
 	if (ChildPinArray.Contains(inPin))
 	{
 		
-		inPin->DisconnectInputPin();
+		inPin->DisconnectInputPin();	//Call the Input Pin Disconnect function on that pin
 
-		ChildPinArray.Remove(inPin);
+		//FFOp
+		//ChildPinArray.Remove(inPin);	//
 
 	}
+
+	CheckPower(); //Update the Power state of the Pin and Object
+
+
+	
+
+}
+
+//Fucntion to Recieve and propogate the Pin State Signal
+void UDigiPinComponent::ReceiveSignal(int inSignal)
+{
+	//Updating currentstate to match the incoming state
+	CurrentPinState = inSignal;
+
 
 	
 
 
-	//if (GEngine)
-		//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString(inPin->GetFName().ToString()));
-
-}
-
-void UDigiPinComponent::ReceiveSignal(int inSignal)
-{
-	CurrentPinState = inSignal;
-
 	if (CurrentPinType == EPinType::PinInput) // if this Pin is an Input Pin, calculate the output
 	{
+		CheckPower();
+
 		if (ChipRef)
 		{
+			
 			ChipRef->ProcessOutput();
 		}
 
 		else if(OutputRef)
 		{
-			
 			OutputRef->ShowOutput();
-
 		}
 		
 	}
@@ -174,8 +192,8 @@ void UDigiPinComponent::ReceiveSignal(int inSignal)
 		{ 
 			//Tmp Printing for debug
 
-			if(GEngine)
-					GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::Printf(TEXT("%d"),inSignal));
+			//if(GEngine)
+					//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::Printf(TEXT("%d"),inSignal));
 
 
 			//Display the UI feedback
@@ -183,5 +201,72 @@ void UDigiPinComponent::ReceiveSignal(int inSignal)
 
 		
 	}
+}
+
+bool UDigiPinComponent::GetIsPowered()
+{
+	return bIsPowered;
+}
+
+
+//Function to check and update the Power state of the pin and Object
+
+void UDigiPinComponent::CheckPower()
+{
+	switch (CurrentPinType)
+	{
+	case EPinType::PinInput:
+								// Checking if Parent Pin is not null and Parent pin is a part of a Chip
+								if (ParentPin && ParentPin->ChipRef)
+								{
+									bIsPowered = ParentPin->ChipRef->GetIsPowered();	//Setting current power state according to ParentPin's Chip's Power State
+								}
+								// Checking if Parent Pin is not null and Parent pin is a part of a InputSource
+								else if(ParentPin && ParentPin->InputRef)
+								{
+									bIsPowered = true;	// setting power state as true since Input source are always powered
+									
+								}
+								
+								else
+								{
+									bIsPowered = false;	//Anything else setting power state to false
+								}
+
+
+								if (ChipRef)
+								{
+									ChipRef->PowerCheck();	//if pin is a part of chip call its Power check function
+								}
+
+
+								else if (OutputRef)
+								{
+									OutputRef->bIsPowered = bIsPowered;	//if the pin is part of outputDisplay change the power state of output display according to its pin		
+								}
+								
+								
+		break;
+
+	case EPinType::PinOutput:
+
+							if (ChipRef)
+							{
+								bIsPowered = ChipRef->GetIsPowered();	//If Pin is part of a Chip, call its power check FUnction
+							}
+							else if (InputRef)
+							{
+								bIsPowered = true;	// if pin is part of InputSouce make it powered since input sources are always powered
+							}
+							else 
+							{
+								bIsPowered = false;// Rest of the time make the state unpowered
+							}
+		break;
+
+	default:
+		break;
+	}
+
 }
 

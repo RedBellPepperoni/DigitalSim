@@ -13,10 +13,12 @@ AOutputDisplay::AOutputDisplay()
 
 	OutputPinComp = CreateDefaultSubobject<UDigiPinComponent>(TEXT("OutputPinComp"));  //creating Digi Pin Comp
 	OutputPinComp->SetupAttachment(BaseMeshComp);			//Attaching the DigiPin to the Main Mesh
-	OutputPinComp->CurrentPinType = EPinType::PinInput;		//Setting the Pintype to Input
-	OutputPinComp->OutputRef = this;						//Setting AActor Ref for Output instead of ChipRef
+							//Setting AActor Ref for Output instead of ChipRef
 
+	OutputPinComp->CurrentPinType = EPinType::PinInput;		//Setting the Pintype to Input
+	OutputPinComp->OutputRef = this;
 	OutputPinComp->ReceiveSignal(0); //Setting initial signal
+
 
 }
 
@@ -24,6 +26,7 @@ AOutputDisplay::AOutputDisplay()
 void AOutputDisplay::BeginPlay()
 {
 	Super::BeginPlay();
+
 	
 }
 
@@ -33,6 +36,10 @@ void AOutputDisplay::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 }
+
+
+
+
 
 
 

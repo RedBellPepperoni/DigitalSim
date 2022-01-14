@@ -80,7 +80,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	bool bHasCustomMesh;
 
-
+	
 	
 	USceneComponent* MeshRootComp;
 
@@ -125,7 +125,7 @@ private:
 	UStaticMeshComponent* PinMeshComp;
 
 	 
-
+	bool bIsPowered;
 	
 
 public:	
@@ -141,7 +141,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void ProcessOutput();
 
-	
+	UFUNCTION(BlueprintCallable)
+	bool GetIsPowered();
+
+	void PowerCheck();
 
 private:
 
